@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dynamic Cards</title>
+<style>
+  /* Style for cards */
+  .card {
+    width: 300px;
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #fff;
+    text-align: center;
+  }
+  .card img {
+    width: 100%;
+    height: auto;
+    border-radius: 5px 5px 0 0;
+  }
+  .card p {
+    margin: 10px 0;
+  }
+  /* Style for navigation arrows */
+  .navigation {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .navigation button {
+    margin: 0 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 3px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<div id="card-container"></div>
+<div class="navigation">
+  <button id="prev-btn">Previous</button>
+  <button id="next-btn">Next</button>
+</div>
+
+<script>
+  // Global variable to keep track of current post index
+  var currentIndex = 0;
+  var data = ""
+  // Function to fetch data from Flask API and update cards
+  function fetchDataAndUpdateCards() {
+    fetch('/fetch_posts_from_video', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(rawData => {
+        data = JSON.parse(rawData)
+        updateCardContainer(data);
+    })
+    .catch(error => {
+      console.error('Error fetching data:', error);
+    });
+  }
+
+  // Function to update card container with fetched data
+  function updateCardContainer(rawData) {
+    var container = document.getElementById('card-container');
+    container.innerHTML = ''; // Clear previous content
+    // Check if data.posts exists and is an array
+    if (data.posts && Array.isArray(data.posts)) {
+      var post = data.posts[currentIndex];
+      var card = document.createElement('div');
+      card.className = 'card';
+
+      // For simplicity, assuming post content is text, update as needed
+      var content = document.createElement('p');
+      content.textContent = post.post;
+
+      card.appendChild(content);
+      container.appendChild(card);
+    } else {
+      console.error('Invalid posts data:', data.posts);
+    }
+  }
+
+  // Function to navigate to the previous post
+  function goToPreviousPost() {
+    currentIndex = (currentIndex - 1 + data.posts.length) % data.posts.length;
+    updateCardContainer(data);
+  }
+
+  // Function to navigate to the next post
+  function goToNextPost() {
+    currentIndex = (currentIndex + 1) % data.posts.length;
+    updateCardContainer(data);
+  }
+
+  // Event listeners for navigation buttons
+  document.getElementById('prev-btn').addEventListener('click', goToPreviousPost);
+  document.getElementById('next-btn').addEventListener('click', goToNextPost);
+
+  // Call the function to fetch data and update cards when the page loads
+  document.addEventListener('DOMContentLoaded', fetchDataAndUpdateCards);
+</script>
+</body>
+</html>
