@@ -25,24 +25,20 @@ def get_video_id(url):
     return None
 
 
-def fetch_transcript(video_id, start_seconds, end_seconds):
+def fetch_transcript(video_id):
     transcript = YouTubeTranscriptApi.get_transcript(video_id)
-    # print(transcript)
     return transcript
-    try:
-        transcript = YouTubeTranscriptApi.get_transcript(video_id)
-    except Exception as e:
-        print(f"Error fetching transcript: {e}")
-        return []
 
-    # Extract the portion of the transcript between start_seconds and end_seconds
-    start_index = find_nearest_index(transcript, start_seconds)
-    end_index = find_nearest_index(transcript, end_seconds)
-
-    return transcript[start_index:end_index]
 def find_nearest_index(transcript, target_seconds):
     # Find the index in the transcript closest to the target time
     for i, entry in enumerate(transcript):
         if entry['start'] >= target_seconds:
             return i
     return len(transcript)
+
+
+def getStringTranscript(transcript):
+    transcript_str = ''
+    for line in transcript:
+        transcript_str = transcript_str + '\n' + line["text"]
+    return transcript_str

@@ -39,6 +39,6 @@ def genImage(prompt,index):
         with open(path, "wb") as f:
             f.write(base64.b64decode(image["base64"]))
         print(path)
-        time.sleep(10)
+        time.sleep(1)
         return path
 
